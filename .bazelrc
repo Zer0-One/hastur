@@ -47,7 +47,9 @@ build:msvc --per_file_copt='external/boringssl[:/]@/wd4267' # C4267: '=': conver
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4005' # C4005: 'NOMINMAX': macro redefinition
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4244' # C4244: '=': conversion from 'int' to 'uint8_t', possible loss of data
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+build:msvc --per_file_copt='external/imgui-sfml[:/]@/wd4100' # C4100: 'bgColor': unreferenced formal parameter
 build:msvc --per_file_copt='external/sfml[:/]@/wd4100' # C4100: 'visible': unreferenced formal parameter
+build:msvc --per_file_copt='external/sfml[:/]@/wd4244' # C4244: 'initializing': conversion from 'sf::Uint32' to 'sf::Uint8', possible loss of data
 build:msvc --per_file_copt='external/sfml[:/]@/wd4456' # C4456: declaration of 'i' hides previous local declaration
 build:msvc --per_file_copt='external/sfml[:/]@/wd4701' # C4701: potentially uninitialized local variable 'shape' used
 build:msvc --per_file_copt='external/sfml[:/]@/wd4703' # C4703: potentially uninitialized local pointer variable 'shape' used
