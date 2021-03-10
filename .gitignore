@@ -6,3 +6,6 @@
 
 # Local settings.
 /.bazelrc.local
+
+# Junk
+*.swp

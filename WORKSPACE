@@ -44,6 +44,22 @@ http_archive(
 )
 
 http_archive(
+    name = "glib",
+    build_file = "//third_party:glib.BUILD",
+    sha256 = "9d2ad4303ce25ae7cfde77409d8364508ac6072a868cfca2e78333c6cdfa05e6",
+    strip_prefix = "glib-2.67.5",
+    url = "https://download.gnome.org/sources/glib/2.67/glib-2.67.5.tar.xz",
+)
+
+http_archive(
+    name = "gtk4",
+    build_file = "//third_party:gtk4.BUILD",
+    sha256 = "d7c9893725790b50bd9a3bb278856d9d543b44b6b9b951d7b60e7bdecc131890",
+    strip_prefix = "gtk-4.0.3",
+    url = "https://download.gnome.org/sources/gtk/4.0/gtk-4.0.3.tar.xz",
+)
+
+http_archive(
     name = "imgui",
     build_file = "//third_party:imgui.BUILD",
     sha256 = "f7c619e03a06c0f25e8f47262dbc32d61fd033d2c91796812bf0f8c94fca78fb",
