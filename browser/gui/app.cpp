@@ -166,15 +166,16 @@ int App::run() {
 
 void App::navigate() {
     page_loaded_ = false;
-    auto uri = uri::Uri::parse(url_buf_);
-    if (!uri) {
+    uri::URLParser parser(url_buf_);
+    std::optional<uri::URL> url = parser.parse();
+    if (!url.has_value()) {
         return;
     }
 
-    engine_.navigate(std::move(*uri));
+    engine_.navigate(std::move(*url));
 
     // Make sure the displayed url is still correct if we followed any redirects.
-    url_buf_ = engine_.uri().uri;
+    url_buf_ = engine_.url().url;
 }
 
 void App::on_navigation_failure(protocol::Error err) {

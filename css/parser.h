@@ -24,7 +24,7 @@ namespace css {
 
 class Parser final : util::BaseParser {
 public:
-    Parser(std::string_view input) : BaseParser{input} {}
+    Parser(std::string input) : BaseParser{input} {}
 
     std::vector<css::Rule> parse_rules() {
         std::vector<css::Rule> rules;

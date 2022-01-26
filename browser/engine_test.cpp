@@ -20,7 +20,10 @@ int main() {
         e.set_on_page_loaded([] { require(false); });
         e.set_on_layout_updated([] { require(false); });
 
-        e.navigate(*uri::Uri::parse("http://aaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaa"));
+        uri::URLParser parser("http://aaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaa");
+        auto url = parser.parse();
+
+        e.navigate(url.value());
         expect(success);
     });
 
@@ -31,7 +34,10 @@ int main() {
         e.set_on_page_loaded([&] { success = true; });
         e.set_on_layout_updated([] { require(false); });
 
-        e.navigate(*uri::Uri::parse("http://example.com"));
+        uri::URLParser parser("http://example.com");
+        auto url = parser.parse();
+
+        e.navigate(url.value());
         expect(success);
     });
 
@@ -46,7 +52,10 @@ int main() {
         bool success{false};
         e.set_on_page_loaded([&] { success = true; });
 
-        e.navigate(*uri::Uri::parse("http://example.com"));
+        uri::URLParser parser("http://example.com");
+        auto url = parser.parse();
+
+        e.navigate(url.value());
 
         expect(success);
 

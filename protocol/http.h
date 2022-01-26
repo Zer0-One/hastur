@@ -57,11 +57,11 @@ struct Response {
 
 class Http {
 public:
-    static Response get(auto &&socket, uri::Uri const &uri) {
+    static Response get(auto &&socket, uri::URL const &url) {
         using namespace std::string_view_literals;
 
-        if (socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
-            socket.write(Http::create_get_request(uri));
+        if (socket.connect(url.host, Http::use_port(url) ? url.port : url.scheme)) {
+            socket.write(Http::create_get_request(url));
             auto data = socket.read_until("\r\n"sv);
             if (data.empty()) {
                 return {Error::Unresolved};
@@ -141,8 +141,8 @@ private:
         return std::nullopt;
     }
 
-    static bool use_port(uri::Uri const &uri);
-    static std::string create_get_request(uri::Uri const &uri);
+    static bool use_port(uri::URL const &url);
+    static std::string create_get_request(uri::URL const &url);
     static std::optional<StatusLine> parse_status_line(std::string_view status_line);
     static Headers parse_headers(std::string_view header);
 };

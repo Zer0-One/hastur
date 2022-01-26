@@ -12,7 +12,7 @@
 
 namespace css {
 
-std::vector<css::Rule> parse(std::string_view input);
+std::vector<css::Rule> parse(std::string input);
 
 } // namespace css
 

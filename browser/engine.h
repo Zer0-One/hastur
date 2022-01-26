@@ -19,7 +19,7 @@ namespace browser {
 
 class Engine {
 public:
-    protocol::Error navigate(uri::Uri uri);
+    protocol::Error navigate(uri::URL url);
 
     void set_layout_width(int width);
 
@@ -27,7 +27,7 @@ public:
     void set_on_page_loaded(auto cb) { on_page_loaded_ = std::move(cb); }
     void set_on_layout_updated(auto cb) { on_layout_update_ = std::move(cb); }
 
-    uri::Uri const &uri() const { return uri_; }
+    uri::URL const &url() const { return url_; }
     protocol::Response const &response() const { return response_; }
     dom::Document const &dom() const { return dom_; }
     layout::LayoutBox const &layout() const { return *layout_; }
@@ -42,7 +42,7 @@ private:
 
     int layout_width_{};
 
-    uri::Uri uri_{};
+    uri::URL url_{};
     protocol::Response response_{};
     dom::Document dom_{};
     std::optional<style::StyledNode> styled_{};

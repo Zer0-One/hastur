@@ -67,7 +67,7 @@ ValueT get_and_erase(std::map<KeyT, ValueT> &map, KeyT key) {
 
 int main() {
     etest::test("parser: simple rule", [] {
-        auto rules = css::parse("body { width: 50px; }"sv);
+        auto rules = css::parse("body { width: 50px; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -77,7 +77,7 @@ int main() {
     });
 
     etest::test("parser: minified", [] {
-        auto rules = css::parse("body{width:50px;font:inherit}head,p{display:none}"sv);
+        auto rules = css::parse("body{width:50px;font:inherit}head,p{display:none}"s);
         require(rules.size() == 2);
 
         auto first = rules[0];
@@ -93,7 +93,7 @@ int main() {
     });
 
     etest::test("parser: multiple rules", [] {
-        auto rules = css::parse("body { width: 50px; }\np { font-size: 8em; }"sv);
+        auto rules = css::parse("body { width: 50px; }\np { font-size: 8em; }"s);
         require(rules.size() == 2);
 
         auto body = rules[0];
@@ -108,7 +108,7 @@ int main() {
     });
 
     etest::test("parser: multiple selectors", [] {
-        auto rules = css::parse("body, p { width: 50px; }"sv);
+        auto rules = css::parse("body, p { width: 50px; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -118,7 +118,7 @@ int main() {
     });
 
     etest::test("parser: multiple declarations", [] {
-        auto rules = css::parse("body { width: 50px; height: 300px; }"sv);
+        auto rules = css::parse("body { width: 50px; height: 300px; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -129,7 +129,7 @@ int main() {
     });
 
     etest::test("parser: class", [] {
-        auto rules = css::parse(".cls { width: 50px; }"sv);
+        auto rules = css::parse(".cls { width: 50px; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -139,7 +139,7 @@ int main() {
     });
 
     etest::test("parser: id", [] {
-        auto rules = css::parse("#cls { width: 50px; }"sv);
+        auto rules = css::parse("#cls { width: 50px; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -149,7 +149,7 @@ int main() {
     });
 
     etest::test("parser: empty rule", [] {
-        auto rules = css::parse("body {}"sv);
+        auto rules = css::parse("body {}"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -158,12 +158,12 @@ int main() {
     });
 
     etest::test("parser: no rules", [] {
-        auto rules = css::parse(""sv);
+        auto rules = css::parse(""s);
         expect(rules.size() == 0);
     });
 
     etest::test("parser: top-level comments", [] {
-        auto rules = css::parse("body { width: 50px; }/* comment. */ p { font-size: 8em; } /* comment. */"sv);
+        auto rules = css::parse("body { width: 50px; }/* comment. */ p { font-size: 8em; } /* comment. */"s);
         require(rules.size() == 2);
 
         auto body = rules[0];
@@ -180,10 +180,10 @@ int main() {
     etest::test("parser: comments almost everywhere", [] {
         // body { width: 50px; } p { padding: 8em 4em; } with comments added everywhere currently supported.
         auto rules = css::parse(R"(/**/body /**/{/**/width:50px;/**/}/*
-                */p /**/{/**/padding:/**/8em 4em;/**//**/}/**/)"sv);
+                */p /**/{/**/padding:/**/8em 4em;/**//**/}/**/)"s);
         // TODO(robinlinden): Support comments in more places.
         // auto rules = css::parse(R"(/**/body/**/{/**/width/**/:/**/50px/**/;/**/}/*
-        //         */p/**/{/**/padding/**/:/**/8em/**/4em/**/;/**//**/}/**/)"sv);
+        //         */p/**/{/**/padding/**/:/**/8em/**/4em/**/;/**//**/}/**/)"s);
         require_eq(rules.size(), 2UL);
 
         auto body = rules[0];
@@ -206,7 +206,7 @@ int main() {
                     article { width: 50px; }
                     p { font-size: 9em; }
                 }
-                a { background-color: indigo; })"sv);
+                a { background-color: indigo; })"s);
         require(rules.size() == 3);
 
         auto article = rules[0];
@@ -401,7 +401,7 @@ int main() {
     }
 
     etest::test("parser: shorthand font with only size and generic font family", [] {
-        auto rules = css::parse("p { font: 1.5em sans-serif; }"sv);
+        auto rules = css::parse("p { font: 1.5em sans-serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -412,7 +412,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with size, line height, and generic font family", [] {
-        auto rules = css::parse("p { font: 10%/2.5 monospace; }"sv);
+        auto rules = css::parse("p { font: 10%/2.5 monospace; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -424,7 +424,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with absolute size, line height, and font family", [] {
-        auto rules = css::parse(R"(p { font: x-large/110% "New Century Schoolbook", serif; })"sv);
+        auto rules = css::parse(R"(p { font: x-large/110% "New Century Schoolbook", serif; })"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -436,7 +436,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with italic font style", [] {
-        auto rules = css::parse(R"(p { font: italic 120% "Helvetica Neue", serif; })"sv);
+        auto rules = css::parse(R"(p { font: italic 120% "Helvetica Neue", serif; })"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -448,7 +448,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with oblique font style", [] {
-        auto rules = css::parse(R"(p { font: oblique 12pt "Helvetica Neue", serif; })"sv);
+        auto rules = css::parse(R"(p { font: oblique 12pt "Helvetica Neue", serif; })"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -460,7 +460,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with font style oblique with angle", [] {
-        auto rules = css::parse("p { font: oblique 25deg 10px serif; }"sv);
+        auto rules = css::parse("p { font: oblique 25deg 10px serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -472,7 +472,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with bold font weight", [] {
-        auto rules = css::parse("p { font: italic bold 20em/50% serif; }"sv);
+        auto rules = css::parse("p { font: italic bold 20em/50% serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -486,7 +486,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with bolder font weight", [] {
-        auto rules = css::parse("p { font: normal bolder 100px serif; }"sv);
+        auto rules = css::parse("p { font: normal bolder 100px serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -498,7 +498,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with lighter font weight", [] {
-        auto rules = css::parse("p { font: lighter 100px serif; }"sv);
+        auto rules = css::parse("p { font: lighter 100px serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -510,7 +510,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with 1000 font weight", [] {
-        auto rules = css::parse("p { font: 1000 oblique 100px serif; }"sv);
+        auto rules = css::parse("p { font: 1000 oblique 100px serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -523,7 +523,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with 550 font weight", [] {
-        auto rules = css::parse("p { font: italic 550 100px serif; }"sv);
+        auto rules = css::parse("p { font: italic 550 100px serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -536,7 +536,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with 1 font weight", [] {
-        auto rules = css::parse("p { font: oblique 1 100px serif; }"sv);
+        auto rules = css::parse("p { font: oblique 1 100px serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -549,7 +549,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with smal1-caps font variant", [] {
-        auto rules = css::parse("p { font: small-caps 900 100px serif; }"sv);
+        auto rules = css::parse("p { font: small-caps 900 100px serif; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -562,7 +562,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with condensed font stretch", [] {
-        auto rules = css::parse(R"(p { font: condensed oblique 25deg 753 12pt "Helvetica Neue", serif; })"sv);
+        auto rules = css::parse(R"(p { font: condensed oblique 25deg 753 12pt "Helvetica Neue", serif; })"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -576,7 +576,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with exapnded font stretch", [] {
-        auto rules = css::parse("p { font: italic expanded bold xx-smal/80% monospace; }"sv);
+        auto rules = css::parse("p { font: italic expanded bold xx-smal/80% monospace; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -591,7 +591,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with ultra-exapnded font stretch", [] {
-        auto rules = css::parse("p { font: small-caps italic ultra-expanded bold medium Arial, monospace; }"sv);
+        auto rules = css::parse("p { font: small-caps italic ultra-expanded bold medium Arial, monospace; }"s);
         require(rules.size() == 1);
 
         auto body = rules[0];

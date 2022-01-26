@@ -11,7 +11,7 @@
 
 namespace protocol {
 
-Response get(uri::Uri const &uri);
+Response get(uri::URL const &url);
 
 } // namespace protocol
 

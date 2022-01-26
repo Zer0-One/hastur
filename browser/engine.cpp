@@ -30,27 +30,33 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
 
 } // namespace
 
-protocol::Error Engine::navigate(uri::Uri uri) {
+protocol::Error Engine::navigate(uri::URL url) {
     auto is_redirect = [](int status_code) {
         return status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308;
     };
 
-    if (uri.path.empty()) {
-        uri.path = "/";
+    if (url.path.empty()) {
+        url.path = "/";
     }
 
-    uri_ = uri;
-    response_ = protocol::get(uri_);
+    url_ = url;
+    response_ = protocol::get(url_);
     while (response_.err == protocol::Error::Ok && is_redirect(response_.status_line.status_code)) {
         spdlog::info("Following {} redirect from {} to {}",
                 response_.status_line.status_code,
-                uri_.uri,
+                url_.url,
                 response_.headers.get("Location").value());
-        uri_ = *uri::Uri::parse(std::string(response_.headers.get("Location").value()));
-        if (uri_.path.empty()) {
-            uri_.path = "/";
+        uri::URLParser parser(std::string(response_.headers.get("Location").value()));
+        std::optional<uri::URL> tmp = parser.parse();
+        if(!tmp.has_value()){
+            return response_.err;
         }
-        response_ = protocol::get(uri_);
+        url_ = tmp.value();
+        //url_ = *uri::URL::parse(std::string(response_.headers.get("Location").value()));
+        if (url_.path.empty()) {
+            url_.path = "/";
+        }
+        response_ = protocol::get(url_);
     }
 
     switch (response_.err) {
@@ -80,7 +86,7 @@ void Engine::on_navigation_success() {
     auto stylesheet{css::default_style()};
 
     if (auto style = try_get_text_content(dom_, "html.head.style"sv)) {
-        auto new_rules = css::parse(*style);
+        auto new_rules = css::parse(std::string(*style));
         stylesheet.reserve(stylesheet.size() + new_rules.size());
         stylesheet.insert(
                 end(stylesheet), std::make_move_iterator(begin(new_rules)), std::make_move_iterator(end(new_rules)));
@@ -100,9 +106,14 @@ void Engine::on_navigation_success() {
     for (auto link : head_links) {
         future_new_rules.push_back(std::async(std::launch::async, [=, this] {
             auto stylesheet_url =
-                    fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, link->attributes.at("href"));
+                    fmt::format("{}://{}{}", url_.scheme, url_.host, link->attributes.at("href"));
             spdlog::info("Downloading stylesheet from {}", stylesheet_url);
-            auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
+            uri::URLParser parser(stylesheet_url);
+            std::optional<uri::URL> style_url = parser.parse();
+            if(!style_url.has_value()){
+                //something's fucky
+            }
+            auto style_data = protocol::get(style_url.value());
             return css::parse(style_data.body);
         }));
     }

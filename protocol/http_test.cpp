@@ -53,8 +53,9 @@ struct FakeSocket {
     bool connect_result{true};
 };
 
-uri::Uri create_uri(std::string url = "http://example.com") {
-    return uri::Uri::parse(url).value();
+uri::URL create_url(std::string url = "http://example.com") {
+    uri::URLParser parser(url);
+    return parser.parse().value();
 }
 
 FakeSocket create_chunked_socket(std::string body) {
@@ -107,7 +108,7 @@ int main() {
                 "</head>\n"
                 "</html>\n";
 
-        auto response = protocol::Http::get(socket, create_uri());
+        auto response = protocol::Http::get(socket, create_url());
 
         require(response.headers.size() == 13);
         expect_eq(socket.host, "example.com");
@@ -156,7 +157,7 @@ int main() {
                 "<A HREF=\"http://www.google.com/\">here</A>.\r\n"
                 "</BODY></HTML>\r\n";
 
-        auto response = protocol::Http::get(socket, create_uri("http://google.com"));
+        auto response = protocol::Http::get(socket, create_url("http://google.com"));
 
         require(response.headers.size() == 7);
         expect_eq(socket.host, "google.com");
@@ -188,7 +189,7 @@ int main() {
                 "0\r\n"
                 "\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri());
+        auto response = protocol::Http::get(socket, create_url());
 
         expect_eq(response.body,
                 "<!DOCTYPE html>\r\n"
@@ -207,7 +208,7 @@ int main() {
                 "  5\r\nhello\r\n"
                 " 0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri());
+        auto response = protocol::Http::get(socket, create_url());
 
         expect_eq(response.body, "hello");
     });
@@ -217,7 +218,7 @@ int main() {
                 "5  \r\nhello\r\n"
                 "0  \r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri());
+        auto response = protocol::Http::get(socket, create_url());
 
         expect_eq(response.body, "hello");
     });
@@ -227,7 +228,7 @@ int main() {
                 "8684838388283847263674\r\nhello\r\n"
                 "0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri());
+        auto response = protocol::Http::get(socket, create_url());
 
         expect_eq(response.err, protocol::Error::InvalidResponse);
     });
@@ -237,7 +238,7 @@ int main() {
                 "5\r\nhello"
                 "0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri());
+        auto response = protocol::Http::get(socket, create_url());
 
         expect_eq(response.err, protocol::Error::InvalidResponse);
     });
@@ -247,7 +248,7 @@ int main() {
                 "6\r\nhello\r\n"
                 "0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri());
+        auto response = protocol::Http::get(socket, create_url());
 
         expect_eq(response.err, protocol::Error::InvalidResponse);
     });
@@ -257,7 +258,7 @@ int main() {
                 "3\r\nhello\r\n"
                 "0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri());
+        auto response = protocol::Http::get(socket, create_url());
 
         expect_eq(response.err, protocol::Error::InvalidResponse);
     });

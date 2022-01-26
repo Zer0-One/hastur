@@ -21,15 +21,24 @@ int main(int argc, char **argv) {
     spdlog::set_default_logger(spdlog::stderr_color_mt("hastur"));
     spdlog::cfg::load_env_levels();
 
-    auto uri = argc > 1 ? uri::Uri::parse(argv[1]) : uri::Uri::parse(kDefaultUri);
-    if (!uri) {
+    //auto url = argc > 1 ? uri::URL::parse(argv[1]) : uri::URL::parse(kDefaultUri);
+    std::optional<uri::URL> url;
+    if(argc > 1){
+        uri::URLParser parser(argv[1]);
+        url = parser.parse();
+    }
+    else{
+        uri::URLParser parser(kDefaultUri);
+        url = parser.parse();
+    }
+    if (!url.has_value()) {
         spdlog::error("Unable to parse uri from {}", argc > 1 ? argv[1] : kDefaultUri);
         return 1;
     }
 
     browser::Engine engine;
-    if (auto err = engine.navigate(*uri); err != protocol::Error::Ok) {
-        spdlog::error("Got error {} from {}", static_cast<int>(err), uri->uri);
+    if (auto err = engine.navigate(url.value()); err != protocol::Error::Ok) {
+        spdlog::error("Got error {} from {}", static_cast<int>(err), url.value().url);
         std::exit(1);
     }
 

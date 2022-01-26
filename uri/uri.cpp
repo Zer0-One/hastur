@@ -2,61 +2,180 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "uri/uri.h"
+#include <algorithm>
+#include <optional>
+#include <string>
+#include <string_view>
 
-#include <regex>
-#include <utility>
+#include "uri.h"
 
 namespace uri {
 
-std::optional<Uri> Uri::parse(std::string uristr) {
-    std::smatch match;
+using namespace std::string_literals;
 
-    // Regex taken from RFC 3986.
-    std::regex uri_regex("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-    if (!std::regex_search(uristr, match, uri_regex)) {
-        return std::nullopt;
+std::string URLParser::percent_decode(){
+    std::string output = "";
+
+    while(!is_eof()){
+        if(peek() == '%'){
+            if(is_hexdigit(peek(3)[1]) && is_hexdigit(peek(3)[2])){
+                advance(1);
+                output += std::stoi(std::string(peek(2)));
+                advance(2);
+
+                continue;
+            }
+        }
+
+        output += consume_char();
     }
 
-    Authority authority{};
+    reset();
 
-    std::string hostport = match.str(4);
-    size_t userinfo_end = match.str(4).find_first_of("@");
-    if (userinfo_end != std::string::npos) {
-        // Userinfo present.
-        std::string userinfo(match.str(4).substr(0, userinfo_end));
-        hostport = match.str(4).substr(userinfo_end + 1, match.str(4).size() - userinfo_end);
+    return output;
+}
 
-        size_t user_end = userinfo.find_first_of(":");
-        if (user_end != std::string::npos) {
-            // Password present.
-            authority.user = userinfo.substr(0, user_end);
-            authority.passwd = userinfo.substr(user_end + 1, userinfo.size() - user_end);
-        } else {
-            // Password not present.
-            authority.user = userinfo;
+std::optional<URL> URLParser::parse_basic_url(std::optional<std::string> base,
+                                              std::optional<std::string> encoding,
+                                              std::optional<URL> url,
+                                              std::optional<std::string> state_override){
+
+    if(!url.has_value()){
+        //URL new_url;
+        //url.emplace(new_url); <-- Doesn't work, no fucking clue
+
+        std::string url_copy = peek(0);
+
+        // Trim leading C0 control or space
+        trim_leading(is_c0_or_space);
+        //for(auto i = url_copy.begin(); i != url_copy.end(); i++){
+        //    if(is_c0(*i) || *i == 0x20){
+        //        //validation error
+
+        //        url_copy.erase(i);
+
+        //        continue;
+        //    }
+        //    
+        //    break;
+        //}
+
+        // Trim trailing C0 control or space
+        trim_trailing(is_c0_or_space);
+        //for(auto i = url_copy.rbegin(); i != url_copy.rend(); i++){
+        //    if(is_c0(*i) || *i == 0x20){
+        //        //validation error
+
+        //        url_copy.erase(i);
+
+        //        continue;
+        //    }
+        //    
+        //    break;
+        //}
+
+        reset(url_copy);
+    }
+
+    std::string url_copy = peek(0);
+
+    // Remove ASCII tab or newline from input
+    for(auto i = url_copy.begin(); i != url_copy.end(); i++){
+        if(*i == '\t' || *i == '\n' || *i == '\r'){
+            //validation error
+            url_copy.erase(i);
         }
     }
 
-    size_t host_end = hostport.find_first_of(":");
-    if (host_end != std::string::npos) {
-        // Port present.
-        authority.host = hostport.substr(0, host_end);
-        authority.port = hostport.substr(host_end + 1, hostport.size() - host_end);
-    } else {
-        // Port not present.
-        authority.host = hostport;
+    reset(url_copy);
+
+    //std::string state("scheme_start_state");
+    //std::string buffer("");
+
+    //bool atSignSeen = false;
+    //bool insideBrackets = false;
+    //bool passwordTokenSeen = false;
+
+    if(!scheme_start_state()){
+        return std::nullopt;
     }
 
-    auto uri = Uri{
-            .scheme{match.str(2)},
-            .authority{std::move(authority)},
-            .path{match.str(5)},
-            .query{match.str(7)},
-            .fragment{match.str(9)},
-    };
-    uri.uri = std::move(uristr);
-    return uri;
+    auto foo = base;
+    auto bar = encoding;
+    auto baz = state_override;
+
+    return std::nullopt;
 }
 
-} // namespace uri
+bool URLParser::scheme_start_state(){
+    return true;
+}
+
+bool URLParser::blob_resolve(){
+    return true;
+}
+
+std::optional<URL> URLParser::parse(std::optional<std::string> base, std::optional<std::string> encoding){
+    std::optional<URL> url = parse_basic_url(base, encoding, std::nullopt, std::nullopt);
+
+    if(!url.has_value()){
+        return std::nullopt;
+    }
+
+    if(url.value().scheme != "blob"s){
+        //return url;
+    }
+
+    if(!blob_resolve()){
+      return std::nullopt;
+    }
+
+    return url;
+}
+
+//std::optional<URL> parse(std::string_view url){
+//    URLParser p(url);
+//    std::string url_pd =  p.percent_decode(url);
+//
+//    //To-Do(zero-one): import icu and perform IDNA/punycode steps
+//
+//    
+//}
+
+//std::string_view URL::url(){
+//    return std::string_view(url_);
+//}
+//
+//std::string_view URL::scheme(){
+//    return std::string_view(scheme_);
+//}
+//
+//std::string_view URL::user(){
+//    return std::string_view(user_);
+//}
+//
+//std::string_view URL::passwd(){
+//    return std::string_view(passwd_);
+//}
+//
+//std::string_view URL::host(){
+//    return std::string_view(host_);
+//}
+//
+//std::string_view URL::port(){
+//    return std::string_view(port_);
+//}
+//
+//std::string_view URL::path(){
+//    return std::string_view(path_);
+//}
+//
+//std::string_view URL::query(){
+//    return std::string_view(query_);
+//}
+//
+//std::string_view URL::fragment(){
+//    return std::string_view(fragment_);
+//}
+
+}

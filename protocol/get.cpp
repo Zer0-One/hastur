@@ -15,17 +15,17 @@ using namespace std::string_view_literals;
 
 namespace protocol {
 
-Response get(uri::Uri const &uri) {
-    if (uri.scheme == "http"sv) {
-        return Http::get(net::Socket(), uri);
+Response get(uri::URL const &url) {
+    if (url.scheme == "http"sv) {
+        return Http::get(net::Socket(), url);
     }
 
-    if (uri.scheme == "https"sv) {
-        return Http::get(net::SecureSocket(), uri);
+    if (url.scheme == "https"sv) {
+        return Http::get(net::SecureSocket(), url);
     }
 
-    if (uri.scheme == "file"sv) {
-        auto path = std::filesystem::path(uri.path);
+    if (url.scheme == "file"sv) {
+        auto path = std::filesystem::path(url.path);
         if (!exists(path)) {
             return {Error::Unresolved};
         }

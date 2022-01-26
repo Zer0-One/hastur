@@ -45,26 +45,26 @@ bool Headers::CaseInsensitiveLess::operator()(std::string_view s1, std::string_v
             s1, s2, [](unsigned char c1, unsigned char c2) { return std::tolower(c1) < std::tolower(c2); });
 }
 
-bool Http::use_port(uri::Uri const &uri) {
-    if (uri.scheme == "http"sv) {
-        if (!uri.authority.port.empty() && uri.authority.port != "80") {
+bool Http::use_port(uri::URL const &url) {
+    if (url.scheme == "http"sv) {
+        if (!url.port.empty() && url.port != "80") {
             return true;
         }
-    } else if (uri.scheme == "https"sv) {
-        if (!uri.authority.port.empty() && uri.authority.port != "443") {
+    } else if (url.scheme == "https"sv) {
+        if (!url.port.empty() && url.port != "443") {
             return true;
         }
     }
     return false;
 }
 
-std::string Http::create_get_request(uri::Uri const &uri) {
+std::string Http::create_get_request(uri::URL const &url) {
     std::stringstream ss;
-    ss << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
-    if (Http::use_port(uri)) {
-        ss << fmt::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
+    ss << fmt::format("GET {} HTTP/1.1\r\n", url.path);
+    if (Http::use_port(url)) {
+        ss << fmt::format("Host: {}:{}\r\n", url.host, url.port);
     } else {
-        ss << fmt::format("Host: {}\r\n", uri.authority.host);
+        ss << fmt::format("Host: {}\r\n", url.host);
     }
     ss << "Accept: text/html\r\n";
     ss << "Connection: close\r\n\r\n";
