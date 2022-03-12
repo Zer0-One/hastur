@@ -32,6 +32,10 @@ public:
 
     constexpr void advance(std::size_t n) { pos_ += n; }
 
+    constexpr void reset() { pos_ = 0; }
+
+    constexpr void reset(std::string_view input) { input_ = input; pos_ = 0; }
+
     template<Predicate T>
     constexpr std::string_view consume_while(T const &pred) {
         std::size_t start = pos_;
@@ -45,6 +49,19 @@ public:
         while (!is_eof() && is_space(peek())) {
             advance(1);
         }
+    }
+
+    static constexpr bool is_c0(char c) {
+        return c >= 0x00 && c <= 0x1f;
+        //return std::find(begin(c0_chars), end(c0_chars), c) != end(space_chars);
+    }
+
+    static constexpr bool is_c0_or_space(char c) {
+        return is_c0(c) || c == 0x20;
+    }
+
+    static constexpr bool is_tab_or_newline(char c) {
+        return c == 0x09 || c == 0x0a || c == 0x0d;
     }
 
 private:

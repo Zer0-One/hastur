@@ -8,8 +8,33 @@
 
 using etest::expect;
 using uri::Uri;
+using uri::URL;
 
 int main() {
+    etest::test("https: validation_prefix", [] {
+        auto uri = URL("  https://example.com");
+        auto expected = URL();
+
+        expected.url_full = "https://example.com";
+        expected.scheme = "https";
+        expected.host = "example.com";
+
+        expect(uri.url_full == expected.url_full);
+        expect(uri.scheme == expected.scheme);
+        expect(uri.scheme == expected.scheme);
+    });
+    etest::test("https: validation_suffix", [] {
+        auto uri = URL("https://example.com\x18\x18\x18");
+        auto expected = URL();
+
+        expected.url_full = "https://example.com";
+        expected.scheme = "https";
+        expected.host = "example.com";
+
+        expect(uri.url_full == expected.url_full);
+        expect(uri.scheme == expected.scheme);
+        expect(uri.scheme == expected.scheme);
+    });
     etest::test("https: simple uri", [] {
         auto uri = *Uri::parse("https://example.com");
         Uri expected{

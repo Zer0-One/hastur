@@ -5,6 +5,10 @@ cc_library(
     srcs = ["uri.cpp"],
     hdrs = ["uri.h"],
     visibility = ["//visibility:public"],
+    deps = [
+        "//util:base_parser",
+        "@spdlog",
+    ],
 )
 
 cc_test(
